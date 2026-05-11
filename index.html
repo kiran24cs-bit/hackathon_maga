@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Station Disorder Analysis</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+body{
+    min-height:100vh;
+    background:linear-gradient(135deg,#020617,#0f172a,#111827);
+    color:white;
+    padding:30px;
+}
+
+.container{
+    max-width:1400px;
+    margin:auto;
+}
+
+.header{
+    text-align:center;
+    margin-bottom:40px;
+}
+
+.badge{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    padding:12px 24px;
+    border-radius:50px;
+    border:1px solid rgba(34,211,238,0.4);
+    background:rgba(6,182,212,0.1);
+    color:#67e8f9;
+    font-size:13px;
+    letter-spacing:2px;
+    font-weight:bold;
+}
+
+.dot{
+    width:10px;
+    height:10px;
+    border-radius:50%;
+    background:#22d3ee;
+    animation:pulse 1.5s infinite;
+}
+
+@keyframes pulse{
+
+    0%{
+        opacity:0.4;
+        transform:scale(1);
+    }
+
+    50%{
+        opacity:1;
+        transform:scale(1.4);
+    }
+
+    100%{
+        opacity:0.4;
+        transform:scale(1);
+    }
+}
+
+.header h1{
+    font-size:58px;
+    margin-top:20px;
+    font-weight:900;
+    background:linear-gradient(to right,#67e8f9,#60a5fa,#c084fc);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+}
+
+.header p{
+    color:#94a3b8;
+    margin-top:18px;
+    font-size:18px;
+    line-height:1.7;
+}
+
+.main-grid{
+    display:grid;
+    grid-template-columns:2fr 1fr;
+    gap:25px;
+}
+
+.card{
+    background:rgba(255,255,255,0.05);
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:30px;
+    padding:25px;
+    backdrop-filter:blur(10px);
+    margin-bottom:25px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.4);
+}
+
+.card-title{
+    font-size:28px;
+    color:#67e8f9;
+    font-weight:bold;
+    margin-bottom:10px;
+}
+
+.card-subtitle{
+    color:#94a3b8;
+    margin-bottom:25px;
+}
+
+.station-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+    gap:18px;
+}
+
+.station-box{
+    background:#0f172a;
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:20px;
+    padding:20px;
+    transition:0.3s;
+}
+
+.station-box:hover{
+    transform:translateY(-5px) scale(1.03);
+    border-color:#22d3ee;
+}
+
+.station-name{
+    font-size:35px;
+    font-weight:900;
+    margin:15px 0;
+}
+
+.station-value{
+    color:#67e8f9;
+    font-size:24px;
+    font-weight:bold;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+thead{
+    background:#111827;
+}
+
+th,td{
+    padding:18px;
+    text-align:left;
+}
+
+tbody tr{
+    border-top:1px solid rgba(255,255,255,0.05);
+}
+
+tbody tr:hover{
+    background:rgba(34,211,238,0.08);
+}
+
+.station-badge{
+    width:45px;
+    height:45px;
+    border-radius:14px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:rgba(34,211,238,0.1);
+    border:1px solid rgba(34,211,238,0.3);
+    color:#67e8f9;
+    font-weight:bold;
+}
+
+.analysis-card{
+    background:linear-gradient(135deg,rgba(168,85,247,0.15),rgba(59,130,246,0.12));
+    border:1px solid rgba(168,85,247,0.25);
+}
+
+.big-number{
+    font-size:100px;
+    font-weight:900;
+    margin:20px 0;
+    background:linear-gradient(to right,#c084fc,#67e8f9);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+}
+
+.formula{
+    background:rgba(0,0,0,0.4);
+    border:1px solid rgba(34,211,238,0.2);
+    border-radius:20px;
+    padding:30px;
+    text-align:center;
+    font-size:28px;
+    font-weight:900;
+    margin:20px 0;
+}
+
+.sequence{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+}
+
+.sequence span{
+    padding:12px 18px;
+    border-radius:14px;
+    background:rgba(0,0,0,0.4);
+    border:1px solid rgba(34,197,94,0.25);
+    color:#bbf7d0;
+    font-weight:bold;
+}
+
+.next-btn{
+    width:100%;
+    margin-top:25px;
+    padding:18px;
+    border:none;
+    border-radius:18px;
+    font-size:18px;
+    font-weight:bold;
+    cursor:pointer;
+    color:white;
+    background:linear-gradient(to right,#06b6d4,#3b82f6,#8b5cf6);
+    transition:0.3s;
+}
+
+.next-btn:hover{
+    transform:translateY(-3px) scale(1.02);
+    box-shadow:0 10px 25px rgba(59,130,246,0.4);
+}
+
+footer{
+    margin-top:40px;
+    text-align:center;
+    color:#64748b;
+    border-top:1px solid rgba(255,255,255,0.08);
+    padding-top:20px;
+}
+
+@media(max-width:1000px){
+
+    .main-grid{
+        grid-template-columns:1fr;
+    }
+
+    .header h1{
+        font-size:42px;
+    }
+}
+
+</style>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="header">
+
+        <div class="badge">
+            <div class="dot"></div>
+            LEVEL 1 - SMART CITY RECOVERY
+        </div>
+
+        <h1>Station Ordering & Disorder Analysis</h1>
+
+        <p>
+            Convert corrupted station IDs into numerical values,
+            restore proper ordering and analyze disorder count.
+        </p>
+
+    </div>
+
+
+
+    <div class="main-grid">
+
+        <!-- LEFT SIDE -->
+        <div>
+
+            <div class="card">
+
+                <div class="card-title">
+                    Corrupted Registry
+                </div>
+
+                <div class="card-subtitle">
+                    Original station arrangement before recovery
+                </div>
+
+                <div class="station-grid" id="stationGrid"></div>
+
+            </div>
+
+
+
+            <div class="card">
+
+                <div class="card-title" style="color:#4ade80;">
+                    Recovered Order
+                </div>
+
+                <div class="card-subtitle">
+                    Stations sorted in ascending order
+                </div>
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+                            <th>Rank</th>
+                            <th>Station</th>
+                            <th>Value</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="sortedTable"></tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- RIGHT SIDE -->
+        <div>
+
+            <div class="card analysis-card">
+
+                <div class="card-title" style="color:#d8b4fe;">
+                    Disorder Count
+                </div>
+
+                <div class="big-number" id="inversionCount">
+                    14
+                </div>
+
+                <p style="color:#cbd5e1; line-height:1.7;">
+                    Total displaced stations detected in corrupted registry.
+                </p>
+
+            </div>
+
+
+
+            <div class="card">
+
+                <div class="card-title">
+                    Signal Formula
+                </div>
+
+                <div class="formula">
+                    Value = ASCII(letter₁) + ASCII(letter₂)
+                </div>
+
+                <div style="color:#94a3b8; line-height:2;">
+
+                    <div>
+                        Total Stations :
+                        <b style="color:white;">14</b>
+                    </div>
+
+                    <div>
+                        Sorting :
+                        <b style="color:white;">Ascending</b>
+                    </div>
+
+                    <div>
+                        Disorder Metric :
+                        <b style="color:white;">Displaced Station Count</b>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <div class="card">
+
+                <div class="card-title" style="color:#4ade80;">
+                    Final Station Sequence
+                </div>
+
+                <div class="sequence" id="finalSequence"></div>
+
+            </div>
+
+
+
+            <button class="next-btn" onclick="nextLevel()">
+                NEXT LEVEL →
+            </button>
+
+        </div>
+
+    </div>
+
+
+
+    <footer>
+        Smart City Emergency Recovery Console • Level 1 Complete
+    </footer>
+
+</div>
+
+
+
+
+<script>
+
+const stations = [
+    "QA","FM","BT","HX","DP","AK","RC",
+    "LM","ZF","KN","PE","CU","SJ","VG"
+];
+
+
+
+function getValue(id){
+
+    return id.charCodeAt(0) + id.charCodeAt(1);
+
+}
+
+
+
+const stationData = stations.map((station,index)=>({
+
+    station:station,
+    value:getValue(station),
+    index:index+1
+
+}));
+
+
+
+const sortedStations = [...stationData].sort((a,b)=>a.value-b.value);
+
+
+
+
+const stationGrid = document.getElementById("stationGrid");
+
+stationData.forEach(item=>{
+
+    stationGrid.innerHTML += `
+
+        <div class="station-box">
+
+            <div style="color:#64748b;font-size:13px;">
+                #${item.index}
+            </div>
+
+            <div class="station-name">
+                ${item.station}
+            </div>
+
+            <div style="color:#94a3b8;font-size:14px;margin-bottom:8px;">
+                Signal Value
+            </div>
+
+            <div class="station-value">
+                ${item.value}
+            </div>
+
+        </div>
+
+    `;
+
+});
+
+
+
+
+const sortedTable = document.getElementById("sortedTable");
+
+sortedStations.forEach((item,index)=>{
+
+    sortedTable.innerHTML += `
+
+        <tr>
+
+            <td>
+                ${index+1}
+            </td>
+
+            <td>
+                <div class="station-badge">
+                    ${item.station}
+                </div>
+            </td>
+
+            <td style="font-size:20px;font-weight:bold;color:#4ade80;">
+                ${item.value}
+            </td>
+
+        </tr>
+
+    `;
+
+});
+
+
+
+
+const finalSequence = document.getElementById("finalSequence");
+
+sortedStations.forEach(item=>{
+
+    finalSequence.innerHTML += `
+        <span>${item.station}</span>
+    `;
+
+});
+
+
+
+
+function nextLevel(){
+
+    alert("Proceeding to Level 2 🚀");
+
+    // window.location.href = "level2.html";
+
+}
+
+</script>
+
+</body>
+</html>
